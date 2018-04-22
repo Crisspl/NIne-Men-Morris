@@ -49,7 +49,7 @@ def drawBoard(window, board):
 		(525, 300),
 		(575, 300),
 		(300, 400),
-		(575, 300),
+		(375, 400),
 		(475, 400),
 		(250, 450),
 		(375, 450),
@@ -59,7 +59,7 @@ def drawBoard(window, board):
 		(575, 475)
 	]
 
-	evalColor = lambda val: (255, 0, 0) if val=="1" else ((0, 0, 255) if val=="2" else (0, 255, 0)) # player1: red; player2: blue; free: green
+	evalColor = lambda val: (255, 0, 0) if val=="1" else ((0, 0, 255) if val=="2" else((255, 251, 71) if val=='S'  else (0, 255, 0))) # player1: red; player2: blue; free: green
 
 	window.fill((255, 255, 255))
 
@@ -84,6 +84,60 @@ def drawBoard(window, board):
 
 	pygame.display.update()
 
+	
+
+def checkClickPosition(x, y):
+	if (x >200 - 25) & (x < 200 + 25) & (y > 100 -25) & ( y < 100 + 25):
+		return 0
+	if (x >375 - 25) & (x < 375 + 25) & (y > 100 -25) & ( y < 100 + 25):
+		return 1
+	if (x >575 - 25) & (x < 575 + 25) & (y > 100 -25) & ( y < 100 + 25):
+		return 2
+	if (x >250 - 25) & (x < 250 + 25) & (y > 150 -25) & ( y < 150 + 25):
+		return 3
+	if (x >375 - 25) & (x < 375 + 25) & (y > 150 -25) & ( y < 150 + 25):
+		return 4
+	if (x >525 - 25) & (x < 525 + 25) & (y > 150 -25) & ( y < 150 + 25):
+		return 5
+	if (x >300 - 25) & (x < 300 + 25) & (y > 200 -25) & ( y < 200 + 25):
+		return 6
+	if (x >375 - 25) & (x < 375 + 25) & (y > 200 -25) & ( y < 200 + 25):
+		return 7
+	if (x >475 - 25) & (x < 475 + 25) & (y > 200 -25) & ( y < 200 + 25):
+		return 8
+	if (x >200 - 25) & (x < 200 + 25) & (y > 300 -25) & ( y < 300 + 25):
+		return 9
+	if (x >250 - 25) & (x < 250 + 25) & (y > 300 -25) & ( y < 300 + 25):
+		return 10
+	if (x >300- 25) & (x < 300 + 25) & (y > 300 -25) & ( y < 300 + 25):
+		return 11
+	if (x >475 - 25) & (x < 475 + 25) & (y > 300 -25) & ( y < 300 + 25):
+		return 12
+	if (x >525 - 25) & (x < 525 + 25) & (y > 300 -25) & ( y < 300 + 25):
+		return 13
+	if (x >575 - 25) & (x < 575 + 25) & (y > 300 -25) & ( y < 300 + 25):
+		return 14
+	if (x >300 - 25) & (x < 300 + 25) & (y > 400 -25) & ( y < 400 + 25):
+		return 15
+	if (x >375 - 25) & (x < 375 + 25) & (y > 400 -25) & ( y < 400 + 25):
+		return 16
+	if (x >475 - 25) & (x < 475 + 25) & (y > 400 -25) & ( y < 400 + 25):
+		return 17
+	if (x >250 - 25) & (x < 250 + 25) & (y > 450 -25) & ( y < 450 + 25):
+		return 18
+	if (x >375 - 25) & (x < 375 + 25) & (y > 450 -25) & ( y < 450 + 25):
+		return 19
+	if (x >525 - 25) & (x < 525 + 25) & (y > 450 -25) & ( y < 450 + 25):
+		return 20
+	if (x >200 - 25) & (x < 200 + 25) & (y > 475 -25) & ( y < 475 + 25):
+		return 21
+	if (x >375 - 25) & (x < 375 + 25) & (y > 475 -25) & ( y < 475 + 25):
+		return 22
+	if (x >575 - 25) & (x < 575 + 25) & (y > 475 -25) & ( y < 475 + 25):
+		return 23
+	return 0
+	
+	
 def handleEvents():
 	for e in pygame.event.get():
 		if e.type == QUIT:
@@ -134,8 +188,6 @@ def AI_VS_AI(window, depth1, depth2, heuristic1, heuristic2):
 	while True:
 		if handleEvents() == QUIT:
 			break
-
-		#boardOutput(board)
 		evalBoard = alphaBetaPruning(board, depth1, True, alpha, beta, False, heuristic1)
 
 		if evalBoard.evaluator == float('inf'):
@@ -156,6 +208,126 @@ def AI_VS_AI(window, depth1, depth2, heuristic1, heuristic2):
 		drawBoard(window, board)
 	drawBoard(window, board)
 
+	
+def HUMAN_VS_AI(depth, heuristic):
+	pygame.init()
+	window = pygame.display.set_mode([800, 600])
+	board = []
+	for i in range(24):
+		board.append("X")
+
+	evaluation = evaluator()
+	for i in range(9):
+		drawBoard(window, board)
+		moved = False
+		while not moved:
+			event = pygame.event.wait()
+			if event.type == pygame.MOUSEBUTTONDOWN:
+				if event.button == 1:
+					x = event.pos[0]
+					y = event.pos[1]
+					position = checkClickPosition(x,y)
+					if board[position] == 'X':
+						board[position] = '1'
+						drawBoard(window, board)
+						moved = True
+						if checkMillFormation(position, board, '1'):
+							killed = False
+							while not killed:
+								event = pygame.event.wait()
+								if event.type == pygame.MOUSEBUTTONDOWN:
+									if event.button == 1:
+										xKill = event.pos[0]
+										yKill = event.pos[1]
+										killPosition = checkClickPosition(xKill,yKill)
+										if board[killPosition] == '2':
+											board[killPosition] = 'X'
+											killed = True
+											pygame.event.clear()
+											drawBoard(window, board)
+						else:
+							pygame.event.clear()
+			if event.type == pygame.QUIT:
+				break
+		
+		evalBoard = alphaBetaPruning(board, depth, False, alpha, beta, True, heuristic)
+
+		if evalBoard.evaluator == float('-inf'):
+			print("You Win")
+			exit(0)
+		else:
+			board = evalBoard.board
+	print ("FAZA 2")
+	notEnded = True
+	while notEnded:
+		drawBoard(window, board)
+		moved = False
+		while not moved:
+			event = pygame.event.wait()
+			if event.type == pygame.MOUSEBUTTONDOWN:
+				if event.button == 1:
+					x = event.pos[0]
+					y = event.pos[1]
+					position = checkClickPosition(x,y)
+					if board[position] == '1':
+						isPossible = False
+						possibilityCheck = adjacentLocations(position)
+						for i in possibilityCheck:
+							if board[i] == 'X':
+								isPossible = True
+						if isPossible:
+							board[position] = 'S'
+							drawBoard(window, board)
+							while not moved:
+								event = pygame.event.wait()
+								if event.type == pygame.MOUSEBUTTONDOWN:
+									if event.button == 1:
+										x = event.pos[0]
+										y = event.pos[1]
+										position2 = checkClickPosition(x,y)
+										for i in possibilityCheck:
+											if i == position2:
+												if board[i] == 'X':
+													moved = True
+										if moved == True:
+											board[position2] = '1'
+											board[position] = 'X'
+											if checkMillFormation(position2, board, '1'):
+												killed = False
+												while not killed:
+													event = pygame.event.wait()
+													if event.type == pygame.MOUSEBUTTONDOWN:
+														if event.button == 1:
+															xKill = event.pos[0]
+															yKill = event.pos[1]
+															killPosition = checkClickPosition(xKill,yKill)
+															if board[killPosition] == '2':
+																board[killPosition] = 'X'
+																killed = True
+																moved = True
+																pygame.event.clear()
+																drawBoard(window, board)
+											
+						
+						else:
+							pygame.event.clear()
+						
+						
+			if event.type == pygame.QUIT:
+				break
+		drawBoard(window, board)
+		evaluation = alphaBetaPruning(board, depth, False, alpha, beta, False, heuristic)
+		victory = True
+		if evaluation.evaluator == float('-inf'):
+			print("You Lost")
+			exit(0)
+		else:
+			board = evaluation.board
+		
+
+	
+	
+	
 
 if __name__ == "__main__":
 
